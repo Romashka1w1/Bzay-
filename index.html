@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بزيا بزيا بزيا</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0a0a;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Comic Sans MS', 'Arial', 'Tahoma', sans-serif;
+            overflow: hidden;
+            cursor: crosshair;
+        }
+
+        .container {
+            text-align: center;
+            position: relative;
+            z-index: 10;
+            user-select: none;
+        }
+
+        .bzya-text {
+            font-size: clamp(60px, 15vw, 180px);
+            font-weight: 900;
+            color: #ff00ff;
+            text-shadow: 
+                0 0 10px #ff00ff,
+                0 0 20px #ff00ff,
+                0 0 40px #ff00ff,
+                0 0 80px #ff00ff,
+                4px 4px 0 #00ffff,
+                -4px -4px 0 #ffff00;
+            animation: pulse 0.3s infinite alternate;
+            letter-spacing: 10px;
+            line-height: 1;
+            transition: transform 0.1s;
+        }
+
+        .bzya-text:hover {
+            transform: scale(1.1) rotate(2deg);
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1) rotate(-1deg);
+                filter: hue-rotate(0deg);
+            }
+            100% {
+                transform: scale(1.05) rotate(1deg);
+                filter: hue-rotate(30deg);
+            }
+        }
+
+        .subtitle {
+            color: #fff;
+            font-size: clamp(16px, 3vw, 28px);
+            margin-top: 20px;
+            text-shadow: 0 0 10px #00ffff;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .bzya-btn {
+            margin-top: 40px;
+            padding: 20px 50px;
+            font-size: 28px;
+            font-weight: bold;
+            font-family: inherit;
+            background: #ff00ff;
+            color: #fff;
+            border: 4px solid #00ffff;
+            border-radius: 50px;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 0 30px #ff00ff;
+            transition: all 0.15s;
+            animation: bounce 0.5s infinite alternate;
+        }
+
+        .bzya-btn:hover {
+            background: #00ffff;
+            border-color: #ff00ff;
+            box-shadow: 0 0 50px #00ffff;
+            transform: scale(1.1);
+        }
+
+        .bzya-btn:active {
+            transform: scale(0.95);
+        }
+
+        @keyframes bounce {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-10px); }
+        }
+
+        .counter {
+            color: #ffff00;
+            font-size: 20px;
+            margin-top: 20px;
+            text-shadow: 0 0 10px #ffff00;
+        }
+
+        /* Плавающие бзя */
+        .floating-bzya {
+            position: fixed;
+            font-size: 40px;
+            font-weight: 900;
+            color: #ff00ff;
+            text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
+            pointer-events: none;
+            animation: floatUp 3s ease-out forwards;
+            z-index: 100;
+            white-space: nowrap;
+        }
+
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1) rotate(0deg);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-300px) scale(2) rotate(360deg);
+            }
+        }
+
+        /* Фоновые бзя */
+        .bg-bzya {
+            position: fixed;
+            font-size: 80px;
+            font-weight: 900;
+            color: rgba(255, 0, 255, 0.08);
+            pointer-events: none;
+            user-select: none;
+            white-space: nowrap;
+            z-index: 1;
+        }
+
+        .emoji-rain {
+            position: fixed;
+            top: -50px;
+            font-size: 30px;
+            pointer-events: none;
+            animation: fall linear forwards;
+            z-index: 5;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(110vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        .warning {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #666;
+            font-size: 12px;
+            font-family: monospace;
+            z-index: 200;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="bzya-text" id="mainText">بزيا بزيا بزيا</div>
+        <div class="subtitle">اضغط على الزر لتُبزيَ</div>
+        <button class="bzya-btn" id="bzyaBtn">ابزِ الآن</button>
+        <div class="counter" id="counter">عدد البزيا: 0</div>
+    </div>
+
+    <div class="warning">⚠️ تحذير: البزيا المفرطة قد تسبب البزيا</div>
+
+    <script>
+        const mainText = document.getElementById('mainText');
+        const btn = document.getElementById('bzyaBtn');
+        const counterEl = document.getElementById('counter');
+        let count = 0;
+
+        // Звук через Web Audio API
+        function playBzyaSound() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+
+                oscillator.type = 'sawtooth';
+                oscillator.frequency.setValueAtTime(200 + Math.random() * 400, audioCtx.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.3);
+
+                gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.3);
+            } catch (e) {
+                // Игнорируем ошибки аудио
+            }
+        }
+
+        // Создать плавающий "بزيا"
+        function createFloatingBzya(x, y) {
+            const el = document.createElement('div');
+            el.className = 'floating-bzya';
+            const phrases = ['بزيا!', 'بزيا بزيا!', 'بزيييا!', 'بزيا؟', 'بزيا)))', 'بزيا بزيا بزيا'];
+            el.textContent = phrases[Math.floor(Math.random() * phrases.length)];
+            el.style.left = x + 'px';
+            el.style.top = y + 'px';
+            el.style.fontSize = (30 + Math.random() * 40) + 'px';
+            el.style.color = ['#ff00ff', '#00ffff', '#ffff00', '#ff0000', '#00ff00'][Math.floor(Math.random() * 5)];
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 3000);
+        }
+
+        // Эмодзи дождь
+        function createEmojiRain() {
+            const emojis = ['😹', '💀', '🤡', '👽', '🤖', '👾', '🙈', '🍕', '💩', '🔥'];
+            const el = document.createElement('div');
+            el.className = 'emoji-rain';
+            el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+            el.style.left = Math.random() * 100 + 'vw';
+            el.style.fontSize = (20 + Math.random() * 40) + 'px';
+            el.style.animationDuration = (2 + Math.random() * 3) + 's';
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 5000);
+        }
+
+        // Фоновые بزيا
+        function createBgBzya() {
+            const el = document.createElement('div');
+            el.className = 'bg-bzya';
+            el.textContent = 'بزيا';
+            el.style.left = Math.random() * 100 + 'vw';
+            el.style.top = Math.random() * 100 + 'vh';
+            el.style.fontSize = (40 + Math.random() * 120) + 'px';
+            el.style.transform = `rotate(${Math.random() * 360}deg)`;
+            document.body.appendChild(el);
+        }
+
+        // Создаём фоновые بزيا
+        for (let i = 0; i < 15; i++) {
+            createBgBzya();
+        }
+
+        // Клик по кнопке
+        btn.addEventListener('click', (e) => {
+            count++;
+            counterEl.textContent = `عدد البزيا: ${count}`;
+            playBzyaSound();
+            
+            // Эффект тряски
+            mainText.style.transform = `scale(1.3) rotate(${Math.random() * 20 - 10}deg)`;
+            setTimeout(() => {
+                mainText.style.transform = '';
+            }, 150);
+
+            // Меняем цвет
+            const colors = ['#ff00ff', '#00ffff', '#ffff00', '#ff0000', '#00ff00', '#ff8800'];
+            mainText.style.color = colors[Math.floor(Math.random() * colors.length)];
+
+            // Плавающие بزيا
+            const rect = btn.getBoundingClientRect();
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    createFloatingBzya(
+                        rect.left + Math.random() * rect.width,
+                        rect.top + Math.random() * rect.height
+                    );
+                }, i * 50);
+            }
+
+            // Эмодзи
+            for (let i = 0; i < 3; i++) {
+                setTimeout(createEmojiRain, i * 100);
+            }
+
+            // Если много кликов — безумие
+            if (count === 10) {
+                alert('بزيا بزيا بزيا!!! لقد بزيْتَ 10 مرات! بزيا!');
+            }
+            if (count === 50) {
+                document.body.style.animation = 'pulse 0.1s infinite';
+                alert('بزييييا!!! 50 مرة!!! أنت أسطورة البزيا!');
+            }
+        });
+
+        // Клик в любом месте
+        document.addEventListener('click', (e) => {
+            if (e.target === btn) return;
+            createFloatingBzya(e.clientX, e.clientY);
+            playBzyaSound();
+        });
+
+        // Случайные эмодзи
+        setInterval(createEmojiRain, 800);
+
+        // Случайное изменение текста
+        setInterval(() => {
+            const variants = ['بزيا بزيا بزيا', 'بزييييا', 'بزيا؟', 'بزيا!', 'بزيا بزيا', 'بزيا...'];
+            mainText.textContent = variants[Math.floor(Math.random() * variants.length)];
+        }, 2000);
+
+        // Тряска заголовка
+        setInterval(() => {
+            mainText.style.transform = `rotate(${Math.random() * 4 - 2}deg)`;
+        }, 100);
+    </script>
+</body>
+</html>
